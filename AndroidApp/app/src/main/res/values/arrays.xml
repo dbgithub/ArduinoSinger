@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="sortingpreferences">
+        <item>Places around you (nearest)</item>
+        <item>Nah&#8230;, does not matter. Show all.</item>
+    </string-array>
+    <string-array name="settingsPageTheme_keys">
+        <item>Blue and pink</item>
+        <item>Purple and red</item>
+    </string-array>
+    <string-array name="settingsPageTheme_values">
+        <item>AppTheme</item>
+        <item>AppTheme2</item>
+    </string-array>
+</resources>

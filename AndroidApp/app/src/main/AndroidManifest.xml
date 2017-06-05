@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="es.deusto.arduinosinger">
+
+    <!-- Just to be clear about permissions, the non-risk and dangerous permissions are explained below: -->
+    <!--
+         · If the device is running Android 5.1 or lower, or your app's target SDK is 22 or lower: If you list
+            a dangerous permission in your manifest, the user has to grant the permission when they install the app
+    -->
+    <!--
+         · If the device is running Android 6.0 or higher, and your app's target SDK is 23 or higher: The app
+            has to list the permissions in the manifest, and it must request each dangerous permission it needs
+            while the app is running.
+    -->
+    <!-- Check the list of DANGEROUS permissions: https://developer.android.com/guide/topics/permissions/requesting.html#normal-dangerous -->
+
+
+    <!-- Read more about differences between "uses-feature" and "uses-permission": http://stackoverflow.com/questions/28079449/uses-permission-vs-uses-feature -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- This is a DANGEROUS permission -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- The write permission implicitly allows reading permission --> <!-- This is a DANGEROUS permission -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />  <!-- This is a DANGEROUS permission -->
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <!-- List Places Activity -->
+        <activity
+            android:name=".ListPlacesActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- This activity will receive SEARCH intents (instead of delegating the search to another activity) -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+
+            <!-- Makes Search feature available for this activity -->
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
+
+        <!-- Create/Edit Place Activity -->
+        <activity
+            android:name=".CreateEditPlaceActivity"
+            android:label="Create Place" />
+
+        <!-- Place Details Activity -->
+        <activity
+            android:name=".PlaceDetailsActivity"
+            android:label="@string/title_activity_place_details"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <!-- For apps targeting API 24 or higher, FileProvider is the proper way to retrieve the URI of a picture when taking a picture. -->
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="es.deusto.arduinosinger.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- Settings/Preferences Activity -->
+        <activity android:name=".MySettingsActivity"/>
+
+        <!-- Defining a background service -->
+        <service
+            android:name=".NearestPlaceService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="" />
+    </application>
+
+</manifest>

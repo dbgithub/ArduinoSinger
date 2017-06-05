@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <external-path name="places_pictures" path="Android/data/es.deusto.onthestreet.onthestreet/files/Pictures" />
+</paths>

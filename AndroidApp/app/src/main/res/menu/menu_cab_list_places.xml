@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/mnu_cab_delete_place" android:title="@string/CAB_delete_place" android:icon="@drawable/ic_delete_white_24dp" />
+    <item
+        android:id="@+id/mnu_cab_share_place"
+        android:icon="@drawable/ic_share_white_24dp"
+        android:title="@string/CAB_share_place"
+        app:showAsAction="always"
+        app:actionProviderClass="android.support.v7.widget.ShareActionProvider"/> <!-- android.support.v7.widget.ShareActionProvider --><!-- If we were not using AppCompatActivity, we would had to use: android.widget.ShareActionProvider -->
+
+</menu>

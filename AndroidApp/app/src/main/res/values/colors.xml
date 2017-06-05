@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary2">#4d03c4</color>
+    <color name="colorPrimaryDark2">#9100c1</color>
+    <color name="colorAccent2">#9f0005</color>
+    <color name="contacts_backgroundColor">#6cff4081</color>
+    <color name="colorWhite">#FFF</color>
+</resources>

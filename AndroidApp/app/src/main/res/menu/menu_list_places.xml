@@ -1,0 +1,26 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="es.deusto.onthestreet.arduinosinger.ListPlacesActivity">
+    <item
+        android:id="@+id/app_bar_search"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:title="@string/acb_search"
+        app:showAsAction="ifRoom|withText|collapseActionView" />
+    <item
+        android:id="@+id/app_remove_search_filter"
+        android:icon="@drawable/ic_clear_all_white_24dp"
+        android:title="@string/acb_remove_search_results"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/app_sort_by"
+        android:icon="@drawable/ic_sort_white_24dp"
+        android:title="@string/acb_sort_by"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="101"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
+</menu>
