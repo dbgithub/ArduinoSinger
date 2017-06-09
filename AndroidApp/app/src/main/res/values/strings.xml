@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OnTheStreet</string>
+    <string name="app_name">Arduino Singer</string>
     <string name="action_settings">Settings</string>
     <string name="acb_edit">Edit</string>
     <string name="lbl_name">Name</string>
@@ -16,6 +16,111 @@
     <string name="txt_associated_contacts">Associated contacts:</string>
     <string name="CAB_delete_place">Delete place</string>
     <string name="CAB_share_place">Share this place!</string>
+    <string name="desc_20century">
+        Twentieth Century Fox Film Corporation  is an American film studio currently owned by 21st Century Fox.\n\n
+        20th Century Fox is known for its now-iconic searchlight structure logo. Its fanfare was originally composed
+        in 1933 by Alfred Newman, who became the head of Twentieth Century-Fox\'s music department from 1940 until the
+        1960s. It was re-recorded in 1935 when 20th Century-Fox was officially established.
+    </string>
+    <string name="desc_blue">
+        "Blue (Da Ba Dee)" is a hit song by the Italian music group Eiffel 65. It was released on 15 January 1999 as
+        the lead single from their debut album Europop. The song is the group\'s most popular single, reaching number
+        one in many countries such as Ireland, the United Kingdom etc.\n
+        The song also received a Grammy Award nomination for Best Dance Recording at the 2001 Grammy Awards.
+    </string>
+    <string name="desc_equipoa">
+        The A-Team is an American action-adventure television series that ran on NBC from 1983 to 1987 about members
+        of a fictitious former United States Army Special Forces unit. The series was created by Stephen J. Cannell
+        and Frank Lupo. A feature film based on the series was released by 20th Century Fox in June 2010.\n\n
+        The original main theme by Mike Post and Pete Carpenter was released on the vinyl LP Mike Post – Television
+        Theme Songs and again on the Mike Post – Mike Post LP. Though no original music other than the theme has been
+        released, in 1984 Silva Screen issued an album of re-recorded material from the series conducted by Daniel Caine.
+    </string>
+    <string name="desc_indianajones">
+        Henry Walton "Indiana" Jones Jr. is a fictional character and the protagonist of the Indiana Jones franchise.
+        Jones is most famously played by Harrison Ford and has also been portrayed by River Phoenix.
+    </string>
+    <string name="desc_thesimpsons">
+        The Simpsons is an American animated sitcom created by Matt Groening for the Fox Broadcasting Company. The series
+        is a satirical depiction of working-class life epitomized by the Simpson family, which consists of Homer, Marge,
+        Bart, Lisa, and Maggie. Since its debut on December 17, 1989, 618 episodes of The Simpsons have been broadcast.
+        It is the longest-running American sitcom and the longest-running American animated program, and, in 2009, it
+        surpassed Gunsmoke as the longest-running American scripted primetime television series.\n\n
+        The series\' distinctive theme song was composed by musician Danny Elfman in 1989, after Groening approached him
+        requesting a retro style piece. This piece has been noted by Elfman as the most popular of his career.
+    </string>
+    <string name="desc_maribros">
+        Mario Bros  is a platform game published and developed for arcades by Nintendo in 1983. It was created by Shigeru
+        Miyamoto. It has been featured as a minigame in the Super Mario Advance series and numerous other games. In the
+        game, Mario is portrayed as an Italian-American plumber who, along with his younger brother Luigi, has to defeat
+        creatures that have been coming from the sewers below New York City. This song has been used in later video games,
+        including Dance Dance Revolution Mario Mix[10] and Super Smash Bros. Brawl.
+    </string>
+    <string name="desc_popeye">
+        Popeye the Sailor is a cartoon fictional character created by Elzie Crisler Segar. Popeye’s theme song, titled
+        "I\'m Popeye The Sailor Man", composed by Sammy Lerner in 1933 for Fleischer’s first Popeye the Sailor cartoon,
+        has become forever associated with the sailor. The Sailor\'s Hornpipe has often been used as an introduction to
+        Popeye\'s theme song.
+    </string>
+    <string name="desc_starwars">
+        Star Wars is an American epic space opera franchise, centered on a film series created by George Lucas. It depicts
+        the adventures of various characters "a long time ago in a galaxy far, far away". After its debut, Rogue One
+        received generally positive reviews, with its performances, action sequences, soundtrack, visual effects and darker
+        tone being praised. The film grossed over $500 million worldwide within a week of its release.
+    </string>
+    <string name="desc_takeonme">
+        "Take On Me" is a song by Norwegian synthpop band A-ha. Written by the band members, the original version was produced
+        by Tony Mansfield and remixed by John Ratcliff. The second version of the song was produced by Alan Tarney for the
+        group\'s debut studio album Hunting High and Low (1985). The song combines synthpop with a varied instrumentation that
+        includes acoustic guitars, keyboards and drums.
+    </string>
+    <string name="desc_zelda">
+        The Legend of Zelda[a] is a high-fantasy action-adventure video game series created by Japanese game designers Shigeru
+        Miyamoto and Takashi Tezuka. It is primarily developed and published by Nintendo, although some portable installments
+        have been outsourced to Capcom, Vanpool and Grezzo. Ocarina of Time is "[one of the] first contemporary non-dance
+        title[s] to feature music-making as part of its gameplay", using music as a heuristic device and requiring the player
+        to utilise songs to progress in the game – a game mechanic that is also present in Majora\'s Mask.
+    </string>
+    <string name="desc_missionimpossible">
+        Mission: Impossible is a series of action spy thriller films based on the television series of the same name, produced
+        by and starring Tom Cruise as Impossible Missions Force (IMF) agent Ethan Hunt. Beginning in 1996, the films follow the
+        missions of the IMF\'s main field team under the leadership of Hunt, who is forced to take over after the team is betrayed
+        from within in the first film. The series is the 18th-highest-grossing film series of all time, with a worldwide gross of
+        over $2 billion to date. U2 band members Larry Mullen, Jr. and Adam Clayton produced an electronic dance version of the
+        original theme song. The song went into top ten of music charts around the world, and was nominated for the Grammy Award
+        for Best Pop Instrumental Performance. The film was the third-highest-grossing of the year and received positive reviews
+        from film critics.
+    </string>
+    <string name="lyric_twentycentury">20thCenFox:d=16,o=5,b=140:b,8p,b,b,2b,p,c6,32p,b,32p,c6,32p,b,32p,c6,32p,b,8p,b,b,b,32p,b,32p,b,32p,b,32p,b,32p,b,32p,b,32p,g#,32p,a,32p,b,8p,b,b,2b,4p,8e,8g#,8b,1c#6,8f#,8a,8c#6,1e6,8a,8c#6,8e6,1e6,8b,8g#,8a,2b</string>
+    <string name="lyric_blue">Blue:d=4,o=5,b=125:8a#,8d,8g,8a#,8c6,8f,8a,8a#,8p,8g,8a#,8d6,8d#6,8g,8d6,8c6,8a#,8d,8g,8a#,8c6,8f,8a,8a#,8p,8g,8a#,8d6,8d#6,8g,8d6,8c6,8a#,8d,8g,8a#,8c6,8f,8a,8a#,a#,a#,a#.,2p,a,a#,8g,8a#,8c6,8c6,8a,a#,8f,8a#,8d6,d#6,8d6,8c6,a#,8f,8a#,8c6,8c6,8a,a#,8f,a#,8d6,8d#6,8g,8d6,8c6,8a#,8d,8g,8a#,8c6,8f,8a,4a#,8g,8a#,8d6,8d#6,8g,8d6,8c6,8a#,8d,8g,8a#,8c6,8f,8a,4a#,8g,8a#,8d6,8d#6,8g,8d6,8c6,8a#,8d,8g,8a#,8a,8c,8f,2g</string>
+    <string name="lyric_equipoa">A-Team:d=8,o=5,b=125:4d#6,a#,2d#6,16p,g#,4a#,4d#.,p,16g,16a#,d#6,a#,f6,2d#6,16p,c#.6,16c6,16a#,g#.,2a#</string>
+    <string name="lyric_indianajones">Indiana:d=4,o=5,b=250:e,8p,8f,8g,8p,1c6,8p.,d,8p,8e,1f,p.,g,8p,8a,8b,8p,1f6,p,a,8p,8b,2c6,2d6,2e6,e,8p,8f,8g,8p,1c6,p,d6,8p,8e6,1f.6,g,8p,8g,e.6,8p,d6,8p,8g,e.6,8p,d6,8p,8g,f.6,8p,e6,8p,8d6,2c6</string>
+    <string name="lyric_lossimpsons">The Simpsons:d=4,o=5,b=160:c.6,e6,f#6,8a6,g.6,e6,c6,8a,8f#,8f#,8f#,2g,8p,8p,8f#,8f#,8f#,8g,a#.,8c6,8c6,8c6,c6</string>
+    <string name="lyric_mariobros">smb:d=4,o=5,b=100:16e6,16e6,32p,8e6,16c6,8e6,8g6,8p,8g,8p,8c6,16p,8g,16p,8e,16p,8a,8b,16a#,8a,16g.,16e6,16g6,8a6,16f6,8g6,8e6,16c6,16d6,8b,16p,8c6,16p,8g,16p,8e,16p,8a,8b,16a#,8a,16g.,16e6,16g6,8a6,16f6,8g6,8e6,16c6,16d6,8b,8p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16g#,16a,16c6,16p,16a,16c6,16d6,8p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16c7,16p,16c7,16c7,p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16g#,16a,16c6,16p,16a,16c6,16d6,8p,16d#6,8p,16d6,8p,16c6</string>
+    <string name="lyric_popeye">Popeye:d=4,o=5,b=140:16g.,16f.,16g.,16p,32p,16c.,16p,32p,16c.,16p,32p,16e.,16d.,16c.,16d.,16e.,16f.,g,8p,16a,16f,16a,16c6,16b,16a,16g,16a,16g,8e,16g,16g,16g,16g,8a,16b,32c6,32b,32c6,32b,32c6,32b,8c6</string>
+    <string name="lyric_starwars">StarWars:d=4,o=5,b=45:32p,32f#,32f#,32f#,8b.,8f#.6,32e6,32d#6,32c#6,8b.6,16f#.6,32e6,32d#6,32c#6,8b.6,16f#.6,32e6,32d#6,32e6,8c#.6,32f#,32f#,32f#,8b.,8f#.6,32e6,32d#6,32c#6,8b.6,16f#.6,32e6,32d#6,32c#6,8b.6,16f#.6,32e6,32d#6,32e6,8c#6</string>
+    <string name="lyric_takeonme">TakeOnMe:d=4,o=4,b=160:8f#5,8f#5,8f#5,8d5,8p,8b,8p,8e5,8p,8e5,8p,8e5,8g#5,8g#5,8a5,8b5,8a5,8a5,8a5,8e5,8p,8d5,8p,8f#5,8p,8f#5,8p,8f#5,8e5,8e5,8f#5,8e5,8f#5,8f#5,8f#5,8d5,8p,8b,8p,8e5,8p,8e5,8p,8e5,8g#5,8g#5,8a5,8b5,8a5,8a5,8a5,8e5,8p,8d5,8p,8f#5,8p,8f#5,8p,8f#5,8e5,8e5</string>
+    <string name="lyric_zelda">Zelda1:d=4,o=5,b=125:a#,f.,8a#,16a#,16c6,16d6,16d#6,2f6,8p,8f6,16f.6,16f#6,16g#.6,2a#.6,16a#.6,16g#6,16f#.6,8g#.6,16f#.6,2f6,f6,8d#6,16d#6,16f6,2f#6,8f6,8d#6,8c#6,16c#6,16d#6,2f6,8d#6,8c#6,8c6,16c6,16d6,2e6,g6,8f6,16f,16f,8f,16f,16f,8f,16f,16f,8f,8f,a#,f.,8a#,16a#,16c6,16d6,16d#6,2f6,8p,8f6,16f.6,16f#6,16g#.6,2a#.6,c#7,c7,2a6,f6,2f#.6,a#6,a6,2f6,f6,2f#.6,a#6,a6,2f6,d6,2d#.6,f#6,f6,2c#6,a#,c6,16d6,2e6,g6,8f6,16f,16f,8f,16f,16f,8f,16f,16f,8f,8f</string>
+    <string name="lyric_missionimpossible">Mission Impossible:d=16,o=5,b=100:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c6,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c6,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,p,a#4,c</string>
+    <string name="song_image_twentycentury">twentycentury</string>
+    <string name="song_image_blue">blue</string>
+    <string name="song_image_equipoa">equipoa</string>
+    <string name="song_image_indianajones">indianajones</string>
+    <string name="song_image_losimpsons">lossimpsons</string>
+    <string name="song_image_mariobros">mariobross</string>
+    <string name="song_image_popeye">popeye</string>
+    <string name="song_image_starwars">starwars</string>
+    <string name="song_image_takeonme">takeonme</string>
+    <string name="song_image_zelda">zelda</string>
+    <string name="song_image_missionimpossible">missionimpossible</string>
+
+    <string name="lbl_neighborhood">Neighborhood</string>
+    <string name="lbl_longitude">longitude:</string>
+    <string name="lbl_latitude">latitude:</string>
+    <string name="txt_hintLongitude">e.g 50.2715</string>
+    <string name="txt_hintLatitude">e.g -12.9406</string>
+    <string name="txt_useGPS">Use GPS</string>
+    <string name="txt_NA_coordinates">(N/A , N/A)</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"
 
@@ -34,11 +139,4 @@
 
         "The foundational elements of print based design are: typography, grids, space, scale and color."
     </string>
-    <string name="lbl_neighborhood">Neighborhood</string>
-    <string name="lbl_longitude">longitude:</string>
-    <string name="lbl_latitude">latitude:</string>
-    <string name="txt_hintLongitude">e.g 50.2715</string>
-    <string name="txt_hintLatitude">e.g -12.9406</string>
-    <string name="txt_useGPS">Use GPS</string>
-    <string name="txt_NA_coordinates">(N/A , N/A)</string>
 </resources>

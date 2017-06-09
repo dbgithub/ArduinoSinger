@@ -23,7 +23,8 @@
     <uses-permission android:name="android.permission.CAMERA" /> <!-- This is a DANGEROUS permission -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- The write permission implicitly allows reading permission --> <!-- This is a DANGEROUS permission -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />  <!-- This is a DANGEROUS permission -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <application
         android:allowBackup="true"
@@ -32,9 +33,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!-- List Places Activity -->
+        <!-- List Songs Activity -->
         <activity
-            android:name=".ListPlacesActivity"
+            android:name=".ListSongsActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar">
@@ -53,14 +54,20 @@
                 android:resource="@xml/searchable" />
         </activity>
 
-        <!-- Create/Edit Place Activity -->
+        <!-- Create/Edit Song Activity -->
         <activity
-            android:name=".CreateEditPlaceActivity"
-            android:label="Create Place" />
+            android:name=".CreateEditSongActivity"
+            android:label="Create Place">
 
-        <!-- Place Details Activity -->
+            <!-- This activity will receive BLUETOOTH STATE intents -->
+            <intent-filter>
+                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
+            </intent-filter>
+        </activity>
+
+        <!-- Song Details Activity -->
         <activity
-            android:name=".PlaceDetailsActivity"
+            android:name=".SongDetailsActivity"
             android:label="@string/title_activity_place_details"
             android:theme="@style/AppTheme.NoActionBar" />
 

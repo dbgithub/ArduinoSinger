@@ -15,24 +15,24 @@ import java.util.ArrayList;
 /**
  * This class ensures that the data is persistent whenever the user closes the app and reopens it.
  * Or just when even the app is brought to background and/or foreground
- * Created by aitor on 3/21/17.
+ * Created by aitor on 08/06/17.
  */
 
 public class PersistanceManager {
 
-    private static final String FILENAME = "Places.data";
+    private static final String FILENAME = "Songs.data";
     private Context currentContext;
 
     public PersistanceManager(Context c) {
         currentContext = c;
     }
 
-    public ArrayList<Place> loadPlaces() {
+    public ArrayList<Song> loadSongs() {
         try {
             FileInputStream fis = currentContext.openFileInput(FILENAME);
             ObjectInputStream ois = new ObjectInputStream(fis);
             //@SuppressWarnings("unchecked")
-            ArrayList<Place> arr = (ArrayList<Place>) ois.readObject();
+            ArrayList<Song> arr = (ArrayList<Song>) ois.readObject();
             ois.close();
             fis.close();
             return arr;
@@ -50,7 +50,7 @@ public class PersistanceManager {
         return null;
     }
 
-    public void savePlaces(ArrayList<Place> lp) {
+    public void saveSongs(ArrayList<Song> lp) {
         try {
             FileOutputStream fos = currentContext.openFileOutput(FILENAME, Context.MODE_PRIVATE);
             ObjectOutputStream oos = new ObjectOutputStream(fos);

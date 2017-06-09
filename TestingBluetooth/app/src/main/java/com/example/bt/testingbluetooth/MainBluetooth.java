@@ -24,6 +24,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Set;
 import java.util.UUID;
 
@@ -36,6 +38,7 @@ public class MainBluetooth extends AppCompatActivity {
     public static final int REQUEST_ENABLE_BT = 0; // ID for request BT Intent
     private BroadcastReceiver mBroadcastReceiver1;
     private BluetoothAdapter mBluetoothAdapter;
+    private OutputStream outStream;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +53,13 @@ public class MainBluetooth extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                mBluetoothAdapter.cancelDiscovery(); // cancel discovery
-                Log.i("MYLOG", "BT discovery cancelled!");
+                // Send message through BT socket (output stream):
+                //String lyric = "smb3lvl1:d=4,o=5,b=80:16g,32c,16g.,16a,32c,16a.,16b,32c,16b,16a.,32g#,16a.,16g,32c,16g.,16a,32c,16a,4b.,32p,16c6,32f,16c.6,16d6,32f,16d.6,16e6,32f,16e6,16d.6,32c#6,16d.6,16c6,32f,16c.6,16d6,32f,16d6,4e.6,32p,16g,32c,16g.,16a,32c,16a.,16b,32c,16b,16a.,32g#,16a.,16c6,8c.6,32p,16c6,4c.6\n";
+                //String lyric = "Zelda1:d=4,o=5,b=125:a#,f.,8a#,16a#,16c6,16d6,16d#6,2f6,8p,8f6,16f.6,16f#6,16g#.6,2a#.6,16a#.6,16g#6,16f#.6,8g#.6,16f#.6,2f6,f6,8d#6,16d#6,16f6,2f#6,8f6,8d#6,8c#6,16c#6,16d#6,2f6,8d#6,8c#6,8c6,16c6,16d6,2e6,g6,8f6,16f,16f,8f,16f,16f,8f,16f,16f,8f,8f,a#,f.,8a#,16a#,16c6,16d6,16d#6,2f6,8p,8f6,16f.6,16f#6,16g#.6,2a#.6,c#7,c7,2a6,f6,2f#.6,a#6,a6,2f6,f6,2f#.6,a#6,a6,2f6,d6,2d#.6,f#6,f6,2c#6,a#,c6,16d6,2e6,g6,8f6,16f,16f,8f,16f,16f,8f,16f,16f,8f,8f";
+                String lyric = getResources().getString(R.string.lyric_mariobros);
+                byte[] msgBuffer = lyric.getBytes(); //converts entered String into bytes
+                Log.i("MYLOG", "Message sent!");
+                write(outStream,msgBuffer);
             }
         });
 
@@ -190,7 +198,7 @@ public class MainBluetooth extends AppCompatActivity {
                     Log.i("MYLOG", "Turning BT ON...");
                             break;
                     }
-                } else if (action.equals(BluetoothDevice.ACTION_FOUND)) {
+                } else if (action.equals(BluetoothDevice.ACTION_FOUND)) { // This part will be executed when a device is found due to 'startDiscovery'
                     // Get the BluetoothDevice object from the Intent
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     // Add the name and address to an array adapter to show in a ListView
@@ -225,8 +233,11 @@ public class MainBluetooth extends AppCompatActivity {
                 //mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
                 if (device.getAddress().equals("20:14:05:19:29:69")) {
                     try {
+                        // A Bluetooth socket is created with a specific UUID used for Serial communication
                         BluetoothSocket btSocket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
                         btSocket.connect();
+                        messageDealer(btSocket); // TODO: Implement this with AsynTask!
+                        // Remember closing the BT socket: btSocket.close()???
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -236,6 +247,36 @@ public class MainBluetooth extends AppCompatActivity {
         }
         //mBluetoothAdapter.startDiscovery(); // remember calling 'cancelDiscovery' !!!
         //Log.i("MYLOG", "BT discovery started...!");
+    }
+
+    private void messageDealer(BluetoothSocket so) {
+        InputStream inStream = null;
+        outStream = null;
+        try {
+            inStream = so.getInputStream();
+            outStream = so.getOutputStream();
+        } catch (IOException e) { }
+
+        String saludo = "HelloWorld!\n";
+        byte[] msgBuffer = saludo.getBytes(); //converts entered String into bytes
+        write(outStream, msgBuffer);
+        Log.i("MYLOG", "Welcome message sent!");
+    }
+
+    /* Call this from the main activity to send data to the remote device */
+    public void write(OutputStream ons, byte[] bytes) {
+        try {
+            ons.write(bytes);
+        } catch (IOException e) {
+            Log.i("MYLOG", "An exception occured!");
+        }
+    }
+
+    /* Call this from the main activity to shutdown the connection */
+    public void cancel(BluetoothSocket so) {
+        try {
+            so.close();
+        } catch (IOException e) { }
     }
 
 }
