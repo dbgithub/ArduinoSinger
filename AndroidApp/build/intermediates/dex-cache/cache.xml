@@ -7,7 +7,7 @@
         jumboMode="true"
         optimize="true"
         revision="25.0.2"
-        sha1="510aa6efc159983dfbffa676a0dae37568c0a46f">
+        sha1="3be78ebc2706b2e1fe2f12d5726887a92d6c183b">
         <dex dex="C:\Programming\ArduinoSinger\AndroidApp\app\build\intermediates\transforms\dex\debug\folders\1000\10000\instant-run_c4c6f77577c371b72ede26b6c7a8bdda426042e8\classes.dex" />
     </item>
     <item
@@ -16,7 +16,7 @@
         jumboMode="true"
         optimize="true"
         revision="25.0.2"
-        sha1="8ac771e6423e91736abca63c76002b537c9278e4">
+        sha1="20e4d01473fbc982dca62068ca9e0e1eabf2907a">
         <dex dex="C:\Programming\ArduinoSinger\AndroidApp\app\build\intermediates\transforms\dex\debug\folders\1000\10000\instant-run-bootstrap_eaa8cc5455447d1bcb4b0d4661aae0652557a6ec\classes.dex" />
     </item>
 

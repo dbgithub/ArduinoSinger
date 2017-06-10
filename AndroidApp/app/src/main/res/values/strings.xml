@@ -3,19 +3,19 @@
     <string name="action_settings">Settings</string>
     <string name="acb_edit">Edit</string>
     <string name="lbl_name">Name</string>
-    <string name="lbl_location">Location</string>
     <string name="lbl_desc">Description</string>
+    <string name="lbl_lyric">Lyric</string>
+    <string name="lbl_timesplayed">Number of times played:</string>
     <string name="contDesc_pictureplace">Place picture</string>
     <string name="acb_save">Save</string>
     <string name="acb_cancel">Cancel</string>
-    <string name="acb_search">Search a place</string>
-    <string name="acb_associate_contact">Associate contact</string>
+    <string name="acb_search">Search a song</string>
     <string name="acb_remove_search_results">Remove search results</string>
     <string name="acb_sort_by">Sort by...</string>
     <string name="title_activity_place_details">PlaceDetailsActivity</string>
-    <string name="txt_associated_contacts">Associated contacts:</string>
-    <string name="CAB_delete_place">Delete place</string>
-    <string name="CAB_share_place">Share this place!</string>
+    <string name="CAB_edit_song">Delete song</string>
+    <string name="CAB_delete_song">Delete song</string>
+    <string name="CAB_share_song">Share this song!</string>
     <string name="toast_connected_successfully">Connected to you Bluetooth device successfully!</string>
     <string name="toast_not_connected_yet">There is no connection to Bluetooth device yet! Wait a couple of seconds&#8230;</string>
     <string name="desc_20century">
@@ -116,13 +116,6 @@
     <string name="song_image_zelda">zelda</string>
     <string name="song_image_missionimpossible">missionimpossible</string>
 
-    <string name="lbl_neighborhood">Neighborhood</string>
-    <string name="lbl_longitude">longitude:</string>
-    <string name="lbl_latitude">latitude:</string>
-    <string name="txt_hintLongitude">e.g 50.2715</string>
-    <string name="txt_hintLatitude">e.g -12.9406</string>
-    <string name="txt_useGPS">Use GPS</string>
-    <string name="txt_NA_coordinates">(N/A , N/A)</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"
 

@@ -64,4 +64,9 @@ public class Song implements Serializable{
     public void setImageName(String imageName) {
         this.imageName = imageName;
     }
+
+    @Override
+    public String toString() {
+        return this.getName().replace(" ", "").replace(":", "").toLowerCase();
+    }
 }

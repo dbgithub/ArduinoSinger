@@ -8,11 +8,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -27,6 +31,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,6 +42,8 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 
+import es.deusto.arduinosinger.utils.SimpleHttpClient;
+
 public class SongDetailsActivity extends AppCompatActivity {
 
     public static final String SONG_DETAILS = "SONG_DETAILS";
@@ -44,6 +51,8 @@ public class SongDetailsActivity extends AppCompatActivity {
     private Song tmpP;
     private boolean fieldsUpdated = false;
     private String lyric;
+    private boolean isPlaySongAutomatically;
+    private TextView tv_timesplayed;
     // BLUETOOTH:
     public static final int REQUEST_ENABLE_BT = 1; // ID for request BT Intent
     private BroadcastReceiver mBroadcastReceiver1;
@@ -62,28 +71,17 @@ public class SongDetailsActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!mBluetoothAdapter.isEnabled()) {
-                    Log.i("MYLOG", "Enabling BT...");
-                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-                } else {
-                    // BT is already enabled! We continue as expected.
-                    // But, one again, we check if the smartphone was connected eventually to the BT module of Arduino, otherwise it will
-                    // raise an exception because no song can be transmitted.
-                    if (isConnected) {messageDealer();} else {
-                        Toast.makeText(SongDetailsActivity.this, R.string.toast_not_connected_yet, Toast.LENGTH_LONG).show();
-                    }
-                }
-
-                // TODO: quitar...
-//                Intent editPlaceIntent = new Intent(getBaseContext(), CreateEditSongActivity.class);
-//                editPlaceIntent.putExtra(CreateEditSongActivity.PLACE_EDIT, tmpP);
-//                startActivityForResult(editPlaceIntent, EDIT_SONG);
+                sendSong();
             }
         });
 
         tmpP = (Song)getIntent().getSerializableExtra("SONG_DETAILS");
         updateFields();
+
+        // Depending on an Settings options set by the user, the song will be played automatically or not.
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        isPlaySongAutomatically = sharedPref.getBoolean("StartSongAutomatically", false);
+        Log.i("MYLOG", "SharedPreferences (Settings page) for 'StartSongAutomatically' is: " + isPlaySongAutomatically );
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter != null) {
@@ -167,7 +165,9 @@ public class SongDetailsActivity extends AppCompatActivity {
         protected String doInBackground(Void... params) {
             Log.i("MYLOG", "AsynTask started... (doing in background)!");
             try {
+                publishProgress(5);
                 btSocket.connect();
+                publishProgress(100);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -178,7 +178,6 @@ public class SongDetailsActivity extends AppCompatActivity {
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
             Log.i("MYLOG", "Connecting to HC-06............ "+values[0]+"%");
-//            barConnectivity.setProgress(values[0].intValue());
         }
 
         @Override
@@ -186,6 +185,7 @@ public class SongDetailsActivity extends AppCompatActivity {
             Log.i("MYLOG", "AsynTask finished (onPostExecute)!");
             isConnected = true;
             Toast.makeText(SongDetailsActivity.this, R.string.toast_connected_successfully, Toast.LENGTH_LONG).show();
+            if (isPlaySongAutomatically) {sendSong();}
         }
 
     }
@@ -257,6 +257,16 @@ public class SongDetailsActivity extends AppCompatActivity {
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeResource(getResources(),imageResourceID, options);
         headerImage.setImageBitmap(decodeSampledBitmapFromResource(getResources(), imageResourceID, 300, 300));
+
+        // Number of times played (retrieved from a backend 'internetdelascosas'):
+        // First check if there is INTERNET connectivity:
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            // OK -> Access the Internet
+            new MakeHTTPrequest().execute("http://json.internetdelascosas.es/arduino/getlast.php?device_id=4&data_name="+ tmpP.toString()+"&nitems=1");
+        } else {tv_timesplayed.setText("--"); Log.i("MYLOG", "ERROR! HttpClient failed (json.internetdelascosas.es)");}
+
     }
 
     private void bindBroadcastReceiver() {
@@ -302,6 +312,68 @@ public class SongDetailsActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(mBroadcastReceiver1, filter);
         Log.i("MYLOG", "Broadcast receiver 'action_found' binding OK!");
+    }
+
+    /**
+     * Sends song via Bluetooth
+     */
+    private void sendSong() {
+        if (!mBluetoothAdapter.isEnabled()) {
+            Log.i("MYLOG", "Enabling BT...");
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        } else {
+            // BT is already enabled! We continue as expected.
+            // But, one again, we check if the smartphone was connected eventually to the BT module of Arduino, otherwise it will
+            // raise an exception because no song can be transmitted.
+            if (isConnected) {messageDealer();} else {
+                Toast.makeText(SongDetailsActivity.this, R.string.toast_not_connected_yet, Toast.LENGTH_LONG).show();
+            }
+        }
+        // TODO: quitar...
+//                Intent editPlaceIntent = new Intent(getBaseContext(), CreateEditSongActivity.class);
+//                editPlaceIntent.putExtra(CreateEditSongActivity.PLACE_EDIT, tmpP);
+//                startActivityForResult(editPlaceIntent, EDIT_SONG);
+    }
+
+    /**
+     * Class to make calls to backend and retrieve a specific value (number of times a song has been played).
+     */
+    private class MakeHTTPrequest extends AsyncTask<String, Integer, String>{
+
+        @Override
+        protected String doInBackground(String... params) {
+            Log.i("MYLOG", "Making a request to >> json.internetdelascosas.es (deviceID = "+4+"; data_name = "+tmpP.toString()+") ...");
+            publishProgress(5);
+            SimpleHttpClient shc = new SimpleHttpClient(params[0]);
+            String result = shc.doGet();
+            if(result != null){
+                Log.i("MYLOG", "200 OK! HttpClient (json.internetdelascosas.es)");
+                publishProgress(40);
+                try {
+                    JSONArray json = new JSONArray(result);
+                    JSONObject jsonobject = json.getJSONObject(0);
+                    publishProgress(95);
+                    return String.valueOf(jsonobject.getInt("data_value")); // .getInt("data_value")
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    return "BAD";
+                }
+            } else {Log.i("MYLOG", "ERROR! HttpClient failed (json.internetdelascosas.es)"); return "BAD";}
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            Log.i("MYLOG", "Making request to backend............ "+values[0]+"%");
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Log.i("MYLOG", "AsynTask finished (onPostExecute)!");
+            tv_timesplayed = (TextView) findViewById(R.id.tv_playedNUM);
+            if (!result.equals("BAD")) {tv_timesplayed.setText(result);} else {tv_timesplayed.setText("--");}
+        }
     }
 
     /**

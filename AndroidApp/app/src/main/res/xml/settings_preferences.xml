@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
-        android:icon="@drawable/ic_location_black_24dp"
+        android:icon="@drawable/ic_phonelink_setup_black_24dp"
         android:title="Customization">
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="LoadDummySongsAtStart"
-            android:title="Load dummy songs at start" />
+            android:title="Load dummy songs at the start" />
         <SwitchPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:key="StartSongAutomatically"
             android:summaryOff="Song won't start automatically"
             android:summaryOn="The song will be played automatically"

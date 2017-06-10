@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:title="@string/acb_associate_contact"
+        android:title="todelete"
         app:showAsAction="always|withText"
         android:icon="@drawable/ic_person_add_white_24dp"
         android:id="@+id/mnu_addContact" />

@@ -48,60 +48,34 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-public class CreateEditSongActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener{
+public class CreateEditSongActivity extends AppCompatActivity {
 
     public static final int TAKE_A_PICTURE = 0;
     public static final int SELECT_CONTACT = 1;
     public static final String PLACE_EDIT = "PLACE_EDIT";
     private static final int  MY_PERMISSIONS_CAMERA = 1; // 1 doesn't mean True, it's just an ID.
     private static final int MY_PERMISSIONS_EXTERNAL_STORAGE = 2; // 2 doesn't mean anything, it's just an ID.
-    private static final int MY_PERMISSIONS_FINE_LOCATION = 3; // 3 doesn't mean anything, it's just an ID.
     private String currentPicPath;
-    private ArrayList<Contact> arraylContacts = new ArrayList<>();
-    private ArrayAdapter<Contact> arrayadapContacts;
-    private GoogleApiClient myGoogleApiClient; // For accessing Google Play Services
-    private Location location = null; // For storing current location
     // If you want to implement Up Navigation, check this out: https://developer.android.com/training/implementing-navigation/ancestral.html
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(es.deusto.arduinosinger.R.layout.activity_create_song);
-        myGoogleApiClient = ListSongsActivity.myGoogleApiClient;
 
         // Now we should check whether ths activity was called because the user wanted to CREATE a new Song or EDIT it.
-        // The reason behind this is that to edit the place, "CreatePaceActivity" activity is also used for the same purpose.
+        // The reason behind this is that to edit the place, "CreateEditSongActivity" activity is also used for the same purpose.
         Song songToEdit = (Song) getIntent().getSerializableExtra(PLACE_EDIT);
         if (songToEdit != null) {
             setTitle("Edit Song");
             EditText et_name = (EditText) findViewById(es.deusto.arduinosinger.R.id.et_name);
-            EditText et_neighborhood = (EditText) findViewById(es.deusto.arduinosinger.R.id.et_neighborhood);
+            EditText et_lyric = (EditText) findViewById(R.id.et_lyric);
             EditText et_description = (EditText) findViewById(es.deusto.arduinosinger.R.id.et_desc);
             et_name.setText(songToEdit.getName());
-            et_neighborhood.setText(songToEdit.getDescription());
+            et_lyric.setText(songToEdit.getLyric());
             et_description.setText(songToEdit.getDescription());
-//            updateLongitudeLatitude(songToEdit.getLongitude(), songToEdit.getLatitude());
-//            arraylContacts = songToEdit.getlContacts();
             // TODO: retrieve also the picture and show it
-        } else {
-            // Depending on an Settings option, the coordinates fields will either be filled automatically or not.
-            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-            Boolean settingsPreference_automaticFill = sharedPref.getBoolean("AutomaticFillUp", false);
-            if (settingsPreference_automaticFill) {checkLocationPermission();}
         }
-        arrayadapContacts = new ArrayAdapter<Contact>(this, android.R.layout.simple_list_item_2, android.R.id.text1, arraylContacts) {
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                View view = super.getView(position, convertView, parent);
-                TextView text1 = (TextView) view.findViewById(android.R.id.text1);
-                TextView text2 = (TextView) view.findViewById(android.R.id.text2);
-                text1.setText(arraylContacts.get(position).getName());
-                text2.setText(arraylContacts.get(position).getPhoneNumber());
-                return view;
-            }
-        };
-        ListView lv_associatedContacts = (ListView) findViewById(es.deusto.arduinosinger.R.id.listView);
-        lv_associatedContacts.setAdapter(arrayadapContacts);
 
         // OnClick listeners:
         ImageButton imgb = (ImageButton) findViewById(es.deusto.arduinosinger.R.id.create_place_img);
@@ -112,13 +86,6 @@ public class CreateEditSongActivity extends AppCompatActivity implements GoogleA
             }
         });
 
-        Button btn_gps = (Button) findViewById(es.deusto.arduinosinger.R.id.btn_gps);
-        btn_gps.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkLocationPermission();
-            }
-        });
     }
 
     @Override
@@ -136,12 +103,10 @@ public class CreateEditSongActivity extends AppCompatActivity implements GoogleA
                 // Is is necessary to set the result code.
                     // Retrieving the text from text fields:
                     EditText et_name = (EditText) findViewById(es.deusto.arduinosinger.R.id.et_name);
-                    EditText et_neighborhood = (EditText) findViewById(es.deusto.arduinosinger.R.id.et_neighborhood);
+                    EditText et_lyric = (EditText) findViewById(R.id.et_lyric);
                     EditText et_description = (EditText) findViewById(es.deusto.arduinosinger.R.id.et_desc);
-                    EditText et_longitude = (EditText) findViewById(es.deusto.arduinosinger.R.id.et_longitude);
-                    EditText et_latitude = (EditText) findViewById(es.deusto.arduinosinger.R.id.et_latitude);
                 Intent intentResult = new Intent();
-//                intentResult.putExtra("place", new Song(et_name.getText().toString(), et_neighborhood.getText().toString(), et_description.getText().toString(), arraylContacts, (et_longitude.getText().toString().isEmpty()) ? 0.0 : Double.valueOf(et_longitude.getText().toString()), (et_latitude.getText().toString().isEmpty()) ? 0.0 : Double.valueOf(et_latitude.getText().toString())));
+                intentResult.putExtra("place", new Song(et_name.getText().toString(), et_lyric.getText().toString(), et_description.getText().toString()));
                 setResult(Activity.RESULT_OK, intentResult);
                 finish();
                 break;
@@ -161,24 +126,10 @@ public class CreateEditSongActivity extends AppCompatActivity implements GoogleA
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == TAKE_A_PICTURE){
             if(resultCode == Activity.RESULT_OK){
                 galleryAddPic();
                 // TODO show the image in the ImageView!
-            }
-        } else if (requestCode == SELECT_CONTACT) {
-            if(resultCode == Activity.RESULT_OK){
-                Cursor cursor = getContentResolver().query(data.getData(),
-                        new String[] {ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER},
-                        null,
-                        null,
-                        null);
-                if(cursor.moveToNext()) {
-                    Log.i("Contact was picked up:", data.getDataString());
-                    arraylContacts.add(new Contact(cursor.getString(0), cursor.getString(1)));
-                    arrayadapContacts.notifyDataSetChanged();
-                }
             }
         }
     }
@@ -210,15 +161,6 @@ public class CreateEditSongActivity extends AppCompatActivity implements GoogleA
                     // The user granted the permission! :)
                     // Here goes the implementation of the camera functionality and pictures:
                     takePicture();
-                }
-                break;
-            case MY_PERMISSIONS_FINE_LOCATION:
-                if (grantResults[0] == -1) {
-                    // If the user did not grant the permission, then, booo..., back luck for you!
-                } else {
-                    // The user granted the permission! :)
-                    // So, we continue as planned...
-                    acquiredLocation();
                 }
                 break;
             default:
@@ -327,145 +269,15 @@ public class CreateEditSongActivity extends AppCompatActivity implements GoogleA
         c.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
     }
 
-    /**
-     * In order to proceed, first it is necessary to check for LOCATION permission. "ACCESS_FINE_LOCATION" is a dangerous permissions, so this
-     * means that from API 23 onwards it is mandatory to check permission when the functionality is requested (that is, no when you install the app for the first time).
-     * Below API 23, there is no need to check for permissions since the latter should have been granted when installing the app by the user.
-     * So, if current build version > API 23, THEN => we should check for permission. ELSE, no need to check anything.
-     */
-    private void checkLocationPermission() {
-        if (Build.VERSION.SDK_INT > 23 && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
-            // Permission DENIED!
-            // So, we request him/her to grant the permission for that purpose:
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_FINE_LOCATION);
-        } else {
-            // Permission GRANTED! (or not needed to ask)
-            // So, we continue as planned...
-            acquiredLocation();
-        }
-    }
-
-    @SuppressWarnings("MissingPermission")
-    /**
-     * Acquires/Gets the current location if it is possible. Assign a default callback for future location updates.
-     * LOCATION permissions should have already been checked before calling this method.
-     */
-    private void acquiredLocation() {
-
-        // If the location can be acquired:
-        location = LocationServices.FusedLocationApi.getLastLocation(myGoogleApiClient);
-        // Now a Location request object is created to request periodically the location at any frequency we want:
-        LocationRequest myLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(5000);
-        // Now a callback is assigned by default for whenever the location is updated ('onLocationChanged' method):
-        LocationServices.FusedLocationApi.requestLocationUpdates(myGoogleApiClient, myLocationRequest, this);
-
-        // Now, we assign values to Longitude and Latitude fields in the GUI:
-        if (location != null) {updateLongitudeLatitude(location.getLongitude(), location.getLatitude());} else {Log.i("MYLOG", "Not possible to update location. Location object is NULL! :(");}
-    }
-
-    /**
-     * Updates Longitude and Latitude text fields in the UI:
-     */
-    private void updateLongitudeLatitude(double lon, double lat) {
-        EditText et_longitude = (EditText) findViewById(es.deusto.arduinosinger.R.id.et_longitude);
-        EditText et_latitude = (EditText) findViewById(es.deusto.arduinosinger.R.id.et_latitude);
-        et_longitude.setText(Double.toString(lon));
-        et_latitude.setText(Double.toString(lat));
-    }
-
     // Life cycle of the activity:
 
     @Override
     protected void onStart() {
         super.onStart();
-        // Start the connection to Google Play Services (a callback with the status of the connection will be received)
-        connectToGooglePlayServices();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        // Start the disconnection process from Google Play Services (a callback with the status of the process will be received)
-        disconnectFromGooglePlayServices();
-    }
-
-    // ------------------
-
-    /**
-     * Connects to GooglePlayServices so as to work with it later on.
-     * For that, Google Play Services availability is checked (version code), then we proceed to instantiate our local variable and then, connect.
-     */
-    private void connectToGooglePlayServices() {
-        // Check Google Play Services availability:
-        if(GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext()) != ConnectionResult.SUCCESS){
-            Log.i("MYLOG","Google Play Services version code: " + GoogleApiAvailability.GOOGLE_PLAY_SERVICES_VERSION_CODE); // Just log Google Play Services version code to check errors. If the version installed in the smartphone is lower than the version linked in the app (build.gradle) our app will not work.
-        }
-
-        // Create the Google API Client
-        myGoogleApiClient =  new GoogleApiClient.Builder(CreateEditSongActivity.this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-
-        // ..and connect!
-        myGoogleApiClient.connect();
-    }
-
-    /**
-     * Removes location update callback reference and disconnects from Google Play Services.
-     */
-    private void disconnectFromGooglePlayServices() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(myGoogleApiClient, this);
-        if(myGoogleApiClient.isConnected()){
-            myGoogleApiClient.disconnect();
-            Log.i("MYLOG", "Disconnected from Google Play Services! :)");
-        }
-    }
-
-    // Google Play Services and Location CALLBACKS:
-
-    /**
-     * GoogleApiClient.OnConnectionCallbacks INTERFACE
-     * Callback for whenever the connection to GooglePlay Services is successfully connected
-     * @param bundle additional information is provided about the connection
-     */
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Log.i("MYLOG", "Connected to Google Play Services successfully! :)");
-    }
-
-    /**
-     * GoogleApiClient.OnConnectionCallbacks INTERFACE
-     * Callback for whenever the connection to GooglePlay Services is suspended
-     * @param i a constant indicating the cause
-     */
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.i("MYLOG", "The connection to Google Play Services was suspended!");
-    }
-
-    /**
-     * GoogleApiClient.OnConnectionFailedListener INTERFACE
-     * Callback for whenever the connection to GooglePlay Services fails
-     * @param connectionResult information on the connection status
-     */
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.i("MYLOG", "Connection to Google Play Services FAILED!!");
-    }
-
-    /**
-     * LocationLister INTERFACE
-     * Callback executed when location changes and the location is updated.
-     * @param location new location of the smart phone
-     */
-    @Override
-    public void onLocationChanged(Location location) {
-        // Then, we update our location object:
-        this.location = location;
-        Log.i("MYLOG", "Location updated! (" + location.toString()+")");
     }
 }
