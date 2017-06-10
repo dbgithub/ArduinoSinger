@@ -27,6 +27,16 @@
         android:contentDescription="@string/contDesc_pictureplace"
         app:srcCompat="@android:drawable/ic_menu_camera" />
 
+    <ImageButton
+        android:id="@+id/create_place_img2"
+        android:layout_width="@dimen/list_item_place_img_width"
+        android:layout_height="@dimen/list_item_place_img_height"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:alpha="0.8"
+        android:contentDescription="@string/contDesc_pictureplace"
+        app:srcCompat="@android:drawable/ic_menu_camera" />
+
     <TextView
         android:text="@string/lbl_name"
         android:layout_width="wrap_content"
@@ -60,7 +70,7 @@
     <EditText
         android:id="@+id/et_desc"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="100dp"
         android:layout_alignStart="@+id/et_name"
         android:layout_below="@+id/et_name"
         android:ems="10"

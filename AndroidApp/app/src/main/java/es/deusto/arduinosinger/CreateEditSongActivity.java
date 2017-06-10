@@ -5,18 +5,16 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.location.Location;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -26,25 +24,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.TextView;
-
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
+import android.widget.ImageView;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -52,10 +38,11 @@ public class CreateEditSongActivity extends AppCompatActivity {
 
     public static final int TAKE_A_PICTURE = 0;
     public static final int SELECT_CONTACT = 1;
-    public static final String PLACE_EDIT = "PLACE_EDIT";
+    public static final String SONG_EDIT = "SONG_EDIT";
     private static final int  MY_PERMISSIONS_CAMERA = 1; // 1 doesn't mean True, it's just an ID.
     private static final int MY_PERMISSIONS_EXTERNAL_STORAGE = 2; // 2 doesn't mean anything, it's just an ID.
     private String currentPicPath;
+    private String imgName;
     // If you want to implement Up Navigation, check this out: https://developer.android.com/training/implementing-navigation/ancestral.html
 
     @Override
@@ -65,7 +52,7 @@ public class CreateEditSongActivity extends AppCompatActivity {
 
         // Now we should check whether ths activity was called because the user wanted to CREATE a new Song or EDIT it.
         // The reason behind this is that to edit the place, "CreateEditSongActivity" activity is also used for the same purpose.
-        Song songToEdit = (Song) getIntent().getSerializableExtra(PLACE_EDIT);
+        Song songToEdit = (Song) getIntent().getSerializableExtra(SONG_EDIT);
         if (songToEdit != null) {
             setTitle("Edit Song");
             EditText et_name = (EditText) findViewById(es.deusto.arduinosinger.R.id.et_name);
@@ -74,11 +61,21 @@ public class CreateEditSongActivity extends AppCompatActivity {
             et_name.setText(songToEdit.getName());
             et_lyric.setText(songToEdit.getLyric());
             et_description.setText(songToEdit.getDescription());
-            // TODO: retrieve also the picture and show it
+            imgName = songToEdit.getImageName();
+            // Retrieve and show image:
+            ImageView imgView = (ImageView) findViewById(R.id.create_place_img);
+            String uri = "@drawable/" + imgName; // Building the URI for every image.
+            int imageResourceID = getResources().getIdentifier(uri, null, getPackageName()); // Get the ID of the image resource given the URI
+
+            // Loading (large) bitmaps efficiently (more info at: https://developer.android.com/topic/performance/graphics/load-bitmap.html):
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeResource(getResources(),imageResourceID, options);
+            imgView.setImageBitmap(decodeSampledBitmapFromResource(getResources(), imageResourceID, 85, 85));
         }
 
         // OnClick listeners:
-        ImageButton imgb = (ImageButton) findViewById(es.deusto.arduinosinger.R.id.create_place_img);
+        ImageButton imgb = (ImageButton) findViewById(es.deusto.arduinosinger.R.id.create_place_img2);
         imgb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -106,7 +103,7 @@ public class CreateEditSongActivity extends AppCompatActivity {
                     EditText et_lyric = (EditText) findViewById(R.id.et_lyric);
                     EditText et_description = (EditText) findViewById(es.deusto.arduinosinger.R.id.et_desc);
                 Intent intentResult = new Intent();
-                intentResult.putExtra("place", new Song(et_name.getText().toString(), et_lyric.getText().toString(), et_description.getText().toString()));
+                intentResult.putExtra("place", new Song(et_name.getText().toString(), et_lyric.getText().toString(), et_description.getText().toString(), imgName));
                 setResult(Activity.RESULT_OK, intentResult);
                 finish();
                 break;
@@ -114,11 +111,6 @@ public class CreateEditSongActivity extends AppCompatActivity {
                 setResult(Activity.RESULT_CANCELED);
                 finish();
                 break;
-            case es.deusto.arduinosinger.R.id.mnu_addContact:
-                Intent intent = new Intent(Intent.ACTION_PICK,
-                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
-                startActivityForResult(intent, SELECT_CONTACT); // El Select_contact es una variable que nosotros hemos definido
-                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -280,4 +272,58 @@ public class CreateEditSongActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
     }
+
+    /**
+     * Returns the largest sample size that the picture can be given the height and width.
+     * More info at: https://developer.android.com/topic/performance/graphics/load-bitmap.html
+     * @param options
+     * @param reqWidth
+     * @param reqHeight
+     * @return
+     */
+    private static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
+    /**
+     * Returns the bitmap after resizing it
+     * @param res
+     * @param resId
+     * @param reqWidth
+     * @param reqHeight
+     * @return
+     */
+    private static Bitmap decodeSampledBitmapFromResource(Resources res, int resId, int reqWidth, int reqHeight) {
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeResource(res, resId, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeResource(res, resId, options);
+    }
+
 }

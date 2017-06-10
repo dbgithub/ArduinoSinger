@@ -47,8 +47,8 @@ public class ListSongsActivity extends AppCompatActivity implements DialogInterf
     public ArrayList<Song> arraylSongs = new ArrayList<>();
     public static ArrayList<Song> arraylSongs_backup = new ArrayList<>(); // This list will be used to restore the previous items after a search (like a backup)
     private ArrayAdapter<Song> arrayadapSongs;
-    public static final int CREATE_SONG = 0; // ID for CreatePlace Intent
-    public static final int SONG_DETAILS = 1; // ID for PlaceDetails Intent
+    public static final int CREATE_SONG = 0; // ID for CreateSong Intent
+    public static final int EDIT_SONG = 1; // ID for CreateEditSong Intent
     private static final int  MY_PERMISSIONS_BT = 2; // 1 doesn't mean True, it's just an ID.
     private static final int  MY_PERMISSIONS_BT_ADMIN = 4; // 1 doesn't mean True, it's just an ID.
     private int edited_song_index;
@@ -224,7 +224,7 @@ public class ListSongsActivity extends AppCompatActivity implements DialogInterf
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
             shareIntent.putExtra(Intent.EXTRA_TEXT, "Hey! Would you fancy listening to this song?! '"+ arraylSongs.get(edited_song_index).getName()+"'\n\n"+
-                    arraylSongs.get(edited_song_index).getDescription().substring(0,100) +"...\n\nCheck it out! (ArduinoSinger app)");
+                    ((arraylSongs.get(edited_song_index).getDescription().length() >= 100)? arraylSongs.get(edited_song_index).getDescription().substring(0,100) : arraylSongs.get(edited_song_index).getDescription())  +"...\n\nCheck it out! (ArduinoSinger app)");
             shareProv.setShareIntent(shareIntent);
             return true;
         }
@@ -247,7 +247,9 @@ public class ListSongsActivity extends AppCompatActivity implements DialogInterf
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.mnu_cab_edit_song:
-                    // TODO: launch another activity
+                    Intent editSongIntent = new Intent(getBaseContext(), CreateEditSongActivity.class);
+                    editSongIntent.putExtra(CreateEditSongActivity.SONG_EDIT, arraylSongs.get(edited_song_index));
+                    startActivityForResult(editSongIntent, EDIT_SONG);
                     return false;
                 case es.deusto.arduinosinger.R.id.mnu_cab_delete_song:
                     arraylSongs.remove(edited_song_index);
@@ -360,14 +362,16 @@ public class ListSongsActivity extends AppCompatActivity implements DialogInterf
                 arraylSongs.add((Song) data.getSerializableExtra("place"));
                 arraylSongs_backup.add((Song) data.getSerializableExtra("place"));
                 arrayadapSongs.notifyDataSetChanged();
-//                if (arraylSongs.size() >= 1) {startNearestPlaceService();} // TODO: delete
             }
-        } else if (requestCode == SONG_DETAILS) { // This will happen when the user goes from the 'details' Activity back to the main Activity.
+        } else if (requestCode == EDIT_SONG) { // This will happen when the user goes from the 'details' Activity back to the main Activity.
             if(resultCode == Activity.RESULT_OK) {
                 arraylSongs.set(edited_song_index, (Song) data.getSerializableExtra("place"));
                 arraylSongs_backup.set(edited_song_index, (Song) data.getSerializableExtra("place"));
                 arrayadapSongs.notifyDataSetChanged();
             }
+                // Reset the CAB:
+                mActionMode.finish();
+                mActionMode = null;
         }
     }
 

@@ -40,6 +40,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import es.deusto.arduinosinger.utils.SimpleHttpClient;
@@ -47,7 +49,6 @@ import es.deusto.arduinosinger.utils.SimpleHttpClient;
 public class SongDetailsActivity extends AppCompatActivity {
 
     public static final String SONG_DETAILS = "SONG_DETAILS";
-    public static final int EDIT_SONG = 0; // ID for EditPlace Intent
     private Song tmpP;
     private boolean fieldsUpdated = false;
     private String lyric;
@@ -138,6 +139,22 @@ public class SongDetailsActivity extends AppCompatActivity {
         FloatingActionButton fab = (FloatingActionButton) findViewById(es.deusto.arduinosinger.R.id.fab);
         Snackbar.make(fab, "Playing song...! :) ENJOY", Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
+        TimerTask tiT = new TimerTask() {
+            @Override
+            public void run() {
+                // Number of times played (retrieved from a backend 'internetdelascosas'):
+                // First check if there is INTERNET connectivity:
+                ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+                if (networkInfo != null && networkInfo.isConnected()) {
+                    // OK -> Access the Internet
+                    new MakeHTTPrequest().execute("http://json.internetdelascosas.es/arduino/getlast.php?device_id=4&data_name="+ tmpP.toString()+"&nitems=1");
+                }
+            }
+        };
+        Timer hola = new Timer();
+        hola.schedule(tiT, 9000);
+
     }
 
     /* Call this from the main activity to send data to the remote device */
@@ -218,14 +235,7 @@ public class SongDetailsActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == EDIT_SONG){ // If the Intent code was "EDIT_SONG", then we update the information on the screen
-            if(resultCode == Activity.RESULT_OK){
-                // Normally you'd do: "data.getStringExtra" or similar. But in this case we are retrieving a Serializable object
-                tmpP = (Song) data.getSerializableExtra("place");
-                updateFields();
-                fieldsUpdated = true; // We indicate that an update was performed
-            }
-        } else if (requestCode == REQUEST_ENABLE_BT){
+        if (requestCode == REQUEST_ENABLE_BT){
             if(resultCode == Activity.RESULT_OK){
                 // The user enabled BT
                 Log.i("MYLOG", "User enabled BT successfully!");
@@ -330,10 +340,6 @@ public class SongDetailsActivity extends AppCompatActivity {
                 Toast.makeText(SongDetailsActivity.this, R.string.toast_not_connected_yet, Toast.LENGTH_LONG).show();
             }
         }
-        // TODO: quitar...
-//                Intent editPlaceIntent = new Intent(getBaseContext(), CreateEditSongActivity.class);
-//                editPlaceIntent.putExtra(CreateEditSongActivity.PLACE_EDIT, tmpP);
-//                startActivityForResult(editPlaceIntent, EDIT_SONG);
     }
 
     /**
