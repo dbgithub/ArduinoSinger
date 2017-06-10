@@ -178,7 +178,7 @@ public class MainBluetooth extends AppCompatActivity {
 
     private void bindBroadcastReceiver() {
         Log.i("MYLOG", "Binding broadcast receiver for BT...!");
-        BroadcastReceiver mBroadcastReceiver1 = new BroadcastReceiver() {
+        mBroadcastReceiver1 = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 final String action = intent.getAction();

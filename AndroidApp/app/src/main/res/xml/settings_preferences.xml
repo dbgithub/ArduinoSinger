@@ -1,55 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="Location" android:icon="@drawable/ic_location_black_24dp">
-        <EditTextPreference
-            android:defaultValue="50"
-            android:key="coverDistance"
-            android:phoneNumber="true"
-            android:summary="When sorting out the list of places, this is the distance in kilometres that will be covered (in Kilometers)"
-            android:title="Covering distance radius" />
-        <EditTextPreference
-            android:defaultValue="200"
-            android:key="locationDistance"
-            android:phoneNumber="true"
-            android:summary="Define how close is for you a near place (in Meters)"
-            android:title="Nearest place distance radius" />
-        <SwitchPreference
-            android:defaultValue="false"
-            android:title="Nearest place notification (every minute)"
-            android:key="NearestPlaceNotification"
-            android:switchTextOn="Yes"
-            android:switchTextOff="No"
-            android:summaryOn="Notifications will be sent"
-            android:summaryOff="Notifications off" />
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="Customization">
-        <ListPreference
-            android:entries="@array/settingsPageTheme_keys"
-            android:entryValues="@array/settingsPageTheme_values"
-            android:summary="Select the theme you prefer for the app"
-            android:title="Theme"
-            android:key="Theme"
-            android:enabled="false"/> <!-- Let's disable it for the moment since I don't know how to implement it-->
-        <SwitchPreference
-            android:defaultValue="false"
-            android:title="Automatically fill up GPS coordinates"
-            android:key="AutomaticFillUp"
-            android:switchTextOn="Yes"
-            android:switchTextOff="No"
-            android:summaryOn="GPS coordinates fields (longitude and latitude) fill automatically filled up with updated info"
-            android:summaryOff="No automatic filling" />
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="Images">
+    <PreferenceCategory
+        android:icon="@drawable/ic_location_black_24dp"
+        android:title="Customization">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="LoadDummySongsAtStart"
+            android:title="Load dummy songs at start" />
         <SwitchPreference
             android:defaultValue="true"
-            android:title="Set random images when saving place"
-            android:key="RandomImagePlace"
-            android:switchTextOn="Yes"
+            android:key="StartSongAutomatically"
+            android:summaryOff="Song won't start automatically"
+            android:summaryOn="The song will be played automatically"
             android:switchTextOff="No"
-            android:summaryOn="Random images will be selected"
-            android:summaryOff="Blank image" />
+            android:switchTextOn="Yes"
+            android:title="Start song automatically when tapped" />
     </PreferenceCategory>
 
 </PreferenceScreen>

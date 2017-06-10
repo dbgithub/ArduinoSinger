@@ -3,6 +3,7 @@ package es.deusto.arduinosinger;
 import android.Manifest;
 import android.app.Activity;
 import android.app.SearchManager;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -58,6 +59,8 @@ public class ListSongsActivity extends AppCompatActivity implements DialogInterf
     private ArrayAdapter<Song> arrayadapSongs;
     public static final int CREATE_SONG = 0; // ID for CreatePlace Intent
     public static final int SONG_DETAILS = 1; // ID for PlaceDetails Intent
+    private static final int  MY_PERMISSIONS_BT = 2; // 1 doesn't mean True, it's just an ID.
+    private static final int  MY_PERMISSIONS_BT_ADMIN = 4; // 1 doesn't mean True, it's just an ID.
     private static final int MY_PERMISSIONS_FINE_LOCATION = 3; // 3 doesn't mean anything, it's just an ID.
     private int edited_song_index;
     private ActionMode mActionMode = null; // Action mode for CAB (Contextual Action Bar)
@@ -73,10 +76,10 @@ public class ListSongsActivity extends AppCompatActivity implements DialogInterf
         setContentView(es.deusto.arduinosinger.R.layout.activity_list_songs);
         Toolbar toolbar = (Toolbar) findViewById(es.deusto.arduinosinger.R.id.toolbar);
         setSupportActionBar(toolbar);
-        PreferenceManager.setDefaultValues(this, es.deusto.arduinosinger.R.xml.settings_preferences, false); // Loads DEFAULT values for any item in Settings/Preferences page.
-        PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext()).registerOnSharedPreferenceChangeListener(this); // Binds a callback listener for changes in preferences/settings page:
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        sortingDistance = Integer.valueOf(sharedPref.getString("coverDistance", "50000")); // 50000m = 50KM. Within 50KM around (a la redonda). Sorting distance to sort out the Places list. // TODO: delete
+        PreferenceManager.setDefaultValues(this, es.deusto.arduinosinger.R.xml.settings_preferences, false); //TODO: to delete // Loads DEFAULT values for any item in Settings/Preferences page.
+        PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext()).registerOnSharedPreferenceChangeListener(this); //TODO: to delete // Binds a callback listener for changes in preferences/settings page:
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this); //TODO: to delete
+        sortingDistance = Integer.valueOf(sharedPref.getString("coverDistance", "50000")); //TODO: to delete // 50000m = 50KM. Within 50KM around (a la redonda). Sorting distance to sort out the Places list. // TODO: delete
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(es.deusto.arduinosinger.R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -153,28 +156,40 @@ public class ListSongsActivity extends AppCompatActivity implements DialogInterf
                 };
             }
         };
-        // LIST VIEW listing places, if any:
-        final ListView lv_places = (ListView) findViewById(es.deusto.arduinosinger.R.id.lv_places);
-        lv_places.setAdapter(arrayadapSongs);
-        lv_places.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        // LIST VIEW listing songs, if any:
+        final ListView lv_songs = (ListView) findViewById(es.deusto.arduinosinger.R.id.lv_places);
+        lv_songs.setAdapter(arrayadapSongs);
+        lv_songs.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 edited_song_index = position;
-                Intent itemDetailIntent = new Intent(getBaseContext(), SongDetailsActivity.class);
-                itemDetailIntent.putExtra(SongDetailsActivity.SONG_DETAILS, arraylSongs.get(position));
-                startActivityForResult(itemDetailIntent, SONG_DETAILS);
+
+                // Checking for BT permissions:
+                if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_DENIED) {
+                    // Permission DENIED!
+                    // So, we request him/her to grant the permission for that purpose:
+                    ActivityCompat.requestPermissions(ListSongsActivity.this, new String[]{Manifest.permission.BLUETOOTH}, MY_PERMISSIONS_BT);
+                } else if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_ADMIN) == PackageManager.PERMISSION_DENIED) {
+                    // Permission DENIED!
+                    // So, we request him/her to grant the permission for that purpose:
+                    ActivityCompat.requestPermissions(ListSongsActivity.this, new String[]{Manifest.permission.BLUETOOTH_ADMIN}, MY_PERMISSIONS_BT_ADMIN);
+                } else {
+                    // Permission GRANTED! (or not needed to ask)
+                    // So, we continue as planned...
+                    checkBTcompatibility();
+                }
             }
         });
         // We make sure Contextual Action Bar is configured as needed:
-        lv_places.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        lv_places.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        lv_songs.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        lv_songs.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 if (mActionMode != null) {
                     return false;
                 }
                 // Important! mark the editing row as activated:
-                lv_places.setItemChecked(position,true);
+                lv_songs.setItemChecked(position,true);
                 edited_song_index = position; // save the row position of the item to make changes later on, if needed.
                 // Start CAB referencing a callback defined later in the code:
                 mActionMode = ListSongsActivity.this.startSupportActionMode(myActionModeCallBack); // Watch out! If we weren't using AppCompatibilityActivity, then we would have to use: ".this.startActionMode(..)"
@@ -221,8 +236,8 @@ public class ListSongsActivity extends AppCompatActivity implements DialogInterf
             shareProv.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "Hey! Did you realize about this place? '"+ arraylSongs.get(edited_song_index).getName()+"', located at "+
-                    arraylSongs.get(edited_song_index).getDescription() +"! Check it out! (OnTheStreep app)");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "Hey! Would you fancy listening to this song?! '"+ arraylSongs.get(edited_song_index).getName()+"'\n\n"+
+                    arraylSongs.get(edited_song_index).getDescription().substring(0,100) +"...\n\nCheck it out! (ArduinoSinger app)");
             shareProv.setShareIntent(shareIntent);
             return true;
         }
@@ -321,6 +336,32 @@ public class ListSongsActivity extends AppCompatActivity implements DialogInterf
                     // The user granted the permission! :)
                     // So, we continue as planned...
                     acquiredLocation();
+                }
+                break;
+            case MY_PERMISSIONS_BT:
+                if (grantResults[0] == -1) {
+                    // If the user did not grant the permission, then, booo..., back luck for you!
+                } else {
+                    // The user granted the permission! :)
+                    // Now we check another permission:
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) == PackageManager.PERMISSION_DENIED) {
+                        // Permission DENIED!
+                        // So, we request him/her to grant the permission for that purpose:
+                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_ADMIN}, MY_PERMISSIONS_BT_ADMIN);
+                    } else {
+                        // Permission GRANTED! (or not needed to ask)
+                        // Here we continue as expected:
+                        checkBTcompatibility();
+                    }
+                }
+                break;
+            case MY_PERMISSIONS_BT_ADMIN:
+                if (grantResults[0] == -1) {
+                    // If the user did not grant the permission, then, booo..., back luck for you!
+                } else {
+                    // The user granted the permission! :)
+                    // Here we continue as expected:
+                    checkBTcompatibility();
                 }
                 break;
             default:
@@ -708,5 +749,18 @@ public class ListSongsActivity extends AppCompatActivity implements DialogInterf
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeResource(res, resId, options);
+    }
+
+    private void checkBTcompatibility() {
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mBluetoothAdapter == null) {
+            // Device does not support Bluetooth
+            Log.i("MYLOG", "BT is not supported in this device!");
+        } else {
+            Log.i("MYLOG", "BT is compatible with this device!");
+            Intent itemDetailIntent = new Intent(getBaseContext(), SongDetailsActivity.class);
+            itemDetailIntent.putExtra(SongDetailsActivity.SONG_DETAILS, arraylSongs.get(edited_song_index));
+            startActivity(itemDetailIntent);
+        }
     }
 }

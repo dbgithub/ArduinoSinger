@@ -58,18 +58,18 @@
         <activity
             android:name=".CreateEditSongActivity"
             android:label="Create Place">
-
-            <!-- This activity will receive BLUETOOTH STATE intents -->
-            <intent-filter>
-                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
-            </intent-filter>
         </activity>
 
         <!-- Song Details Activity -->
         <activity
             android:name=".SongDetailsActivity"
             android:label="@string/title_activity_place_details"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar">
+            <!-- This activity will receive BLUETOOTH STATE intents -->
+            <intent-filter>
+                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
+            </intent-filter>
+        </activity>
 
         <!-- For apps targeting API 24 or higher, FileProvider is the proper way to retrieve the URI of a picture when taking a picture. -->
         <provider
