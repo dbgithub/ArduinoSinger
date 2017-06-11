@@ -18,6 +18,7 @@
     <string name="CAB_share_song">Share this song!</string>
     <string name="toast_connected_successfully">Connected to you Bluetooth device successfully!</string>
     <string name="toast_not_connected_yet">There is no connection to Bluetooth device yet! Wait a couple of seconds&#8230;</string>
+    <string name="toast_someerror">Some error occurred while updating value to sever&#8230;</string>
     <string name="desc_20century">
         Twentieth Century Fox Film Corporation  is an American film studio currently owned by 21st Century Fox.\n\n
         20th Century Fox is known for its now-iconic searchlight structure logo. Its fanfare was originally composed

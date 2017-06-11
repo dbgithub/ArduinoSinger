@@ -58,7 +58,7 @@
         <!-- Create/Edit Song Activity -->
         <activity
             android:name=".CreateEditSongActivity"
-            android:label="Create Place">
+            android:label="Create Song">
         </activity>
 
         <!-- Song Details Activity -->

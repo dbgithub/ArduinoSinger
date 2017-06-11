@@ -54,6 +54,7 @@ public class SongDetailsActivity extends AppCompatActivity {
     private String lyric;
     private boolean isPlaySongAutomatically;
     private TextView tv_timesplayed;
+    private int counter = 0; // represents the number of times the song has been played
     // BLUETOOTH:
     public static final int REQUEST_ENABLE_BT = 1; // ID for request BT Intent
     private BroadcastReceiver mBroadcastReceiver1;
@@ -138,6 +139,8 @@ public class SongDetailsActivity extends AppCompatActivity {
         Log.i("MYLOG", "Lyric message sent!");
         FloatingActionButton fab = (FloatingActionButton) findViewById(es.deusto.arduinosinger.R.id.fab);
         Snackbar.make(fab, "Playing song...! :) ENJOY", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        counter++;
+        new MakeHTTPrequestAdd().execute("http://json.internetdelascosas.es/arduino/add.php?device_id=4&data_name="+tmpP.toString()+"&data_value="+counter);
 
         TimerTask tiT = new TimerTask() {
             @Override
@@ -212,7 +215,8 @@ public class SongDetailsActivity extends AppCompatActivity {
         super.onDestroy();
         unregisterReceiver(mBroadcastReceiver1);
         try {
-            btSocket.close();
+            if (btSocket != null)
+                btSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -378,7 +382,40 @@ public class SongDetailsActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             Log.i("MYLOG", "AsynTask finished (onPostExecute)!");
             tv_timesplayed = (TextView) findViewById(R.id.tv_playedNUM);
-            if (!result.equals("BAD")) {tv_timesplayed.setText(result);} else {tv_timesplayed.setText("--");}
+            if (!result.equals("BAD")) {tv_timesplayed.setText(result); counter = Integer.parseInt(result);} else {tv_timesplayed.setText("--");}
+        }
+    }
+
+    /**
+     * Class to make calls to backend and update number of times a song has been played.
+     */
+    private class MakeHTTPrequestAdd extends AsyncTask<String, Integer, Boolean>{
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            Log.i("MYLOG", "Making a request to >> json.internetdelascosas.es (deviceID = "+4+"; data_name = "+tmpP.toString()+"; data_value = "+ counter +") ...");
+            publishProgress(5);
+            SimpleHttpClient shc = new SimpleHttpClient(params[0]);
+            shc.doGet();
+            publishProgress(95);
+            return true;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            Log.i("MYLOG", "Making request to backend............ "+values[0]+"%");
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            Log.i("MYLOG", "AsynTask finished (onPostExecute)!");
+            if (result) {
+                tv_timesplayed = (TextView) findViewById(R.id.tv_playedNUM);
+                tv_timesplayed.setText(String.valueOf(counter));
+            } else {
+                Toast.makeText(getApplicationContext(), R.string.toast_someerror, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
