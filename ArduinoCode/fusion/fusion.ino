@@ -45,9 +45,7 @@ HttpClient http(c);
 
 // Variables related to BT module (HC-06):
 SoftwareSerial BT1(3,2); // RX of BT module -> PIN 02 of Arduino  || TX of BT module -> PIN 03 of Arduino
-//char lyric[500] = "TakeOnMe:d=4,o=4,b=160:8f#5"; // A certain amount of memory is reserved for toring the lyric obtained from BT module.
 char lyric[500]; // A certain amount of memory is reserved for toring the lyric obtained from BT module.
-
 int idx=0; // Indice para recorrer el array de chars
 char* lyricPointer; // Puntero a chars, variable final que necesitamos para luego reproducir la cancion.
 
@@ -94,39 +92,32 @@ void setup()
   
   lyricPointer = "";
 
-  connectToWiFi();
+  //connectToWiFi();
   
   // TO DELETE!!!!!! :
   myCounter = 0;
-  lyricPointer = &lyric[0];
   
 }
 
 void loop()
 {
-  /*
-  digitalWrite(motorPIN, HIGH); // Run the motor!
-  play_rtttl(lyricPointer); // Play the song
-  digitalWrite(motorPIN, LOW); // Stop the motor!
-  digitalWrite(ledPIN, LOW); // Stop lighting!
-  delay(2000); */
   while (BT1.available()) { 
       char readChar = BT1.read();
       lyric[idx]=readChar;
       Serial.print(lyric[idx]); // El error estaba en que haciamos un println en vez de print, y es posible que eso no imprimiera visualmente todo, a pesar de que el ARRAY si que estuviera completo
       idx++;
     } 
-    if (!BT1.available()) {
+   
+   if (BT1.available() <= 0) {
       if (lyric[0] != '\0') {
-        lyricPointer = &lyric[0]; Serial.print("Chars pointer: "); Serial.println(lyricPointer);
-        lyric[0] = '\0'; idx = 0;
-        
-        // Now play song??
-        
+        lyricPointer = &lyric[0]; Serial.print("Chars pointer: "); Serial.println(lyricPointer);        
+        // Now play song and start the actuators PARTY!           
         digitalWrite(motorPIN, HIGH); // Run the motor!
         play_rtttl(lyricPointer); // Play the song
         digitalWrite(motorPIN, LOW); // Stop the motor!
-        digitalWrite(ledPIN, LOW); // Stop lighting!  
+        digitalWrite(ledPIN, LOW); // Stop lighting!
+        idx = 0;
+        memset(lyric,'\0',sizeof(lyric));
       }
     }
   //getSendValuesToServer(0,myCounter,songName);
@@ -439,8 +430,8 @@ void play_rtttl(char *p)
 
     // NOW, we check whether we have to stop from playing the song depending on whether the user has pushed the button or not.
     int val = digitalRead(buttonPIN); // read input value
-    Serial.print("Button value: "); Serial.println(val);
     if (val == LOW) { // check if the input is LOW
+      Serial.print("Button value: "); Serial.print(val); Serial.println(" (pressed!)");
       break;
     }
     

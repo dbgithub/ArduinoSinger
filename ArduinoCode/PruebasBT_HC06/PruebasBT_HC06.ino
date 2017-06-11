@@ -34,7 +34,7 @@ void loop()
       BT1.write(Serial.read());
     */  
     
-    // TODO: Probar si funciona tambien con un WHILE en vez de con un IF. Porque en el codigo final de Arduino, tendremos que utilizar un While en algun momento.
+    // Esto es lo mismo que el trozo comentado de abajo pero con un IF en vez de un WHILE
     if (BT1.available()) { 
       char readChar = BT1.read();
       lyric[idx]=readChar;
@@ -46,4 +46,20 @@ void loop()
         lyric[0] = '\0';
       }
     }
+    
+    /*
+    // Esto es lo mismo que el de arriba pero con un WHILE en vez de con un IF.
+    while (BT1.available()) { 
+      char readChar = BT1.read();
+      lyric[idx]=readChar;
+      Serial.print(lyric[idx]); // El error estaba en que haciamos un println en vez de print, y es posible que eso no imprimiera visualmente todo, a pesar de que el ARRAY si que estuviera completo
+      idx++;
+    } 
+    if (!BT1.available()) {
+      if (lyric[0] != '\0') {
+        hola = &lyric[0]; Serial.print("Chars pointer: "); Serial.println(hola);
+        lyric[0] = '\0';
+      }
+    }
+    */
 }
