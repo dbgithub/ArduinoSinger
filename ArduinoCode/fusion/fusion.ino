@@ -1,9 +1,8 @@
-// (c) Copyright 2010-2012 MCQN Ltd.
-// Released under Apache License, version 2.0
-//
-// Simple example to show how to use the HttpClient library
-// Get's the web page given at http://<kHostname><kPath> and
-// outputs the content to the serial port
+// Movilidad y computacion ubicua 
+// Final Project | Last assignment: Arduino & Android Project
+// 12 · 06 · 2017
+
+// Authors: Aitor De Blas, Jorge Sarabia
 
 #include <SPI.h>
 #include <HttpClient.h>
@@ -11,44 +10,53 @@
 #include <aJSON.h>
 #include <Tone.h>
 #include <EEPROM.h>
+#include <SoftwareSerial.h> // this is for BT module. To make some PINs behave as Serial.
 
 char ssid[] = "MCU";      //  your network SSID (name) 
 char pass[] = "nomorgan";   // your network password
 
 // Name of the server we want to connect to
-const char kHostname[] = "json.internetdelascosas.es";
+const char hostname[] = "json.internetdelascosas.es";
 // Path to use
-const char kPath[] = "/arduino/getlast.php?device_id=4&data_name=TakeOnMe&nitems=1";
-const char path[] = "/arduino/add.php?device_id=4&data_name=";
+const char pathGet[] = "/arduino/getlast.php?&nitems=1&device_id=4&data_name=";
+const char pathAdd[] = "/arduino/add.php?device_id=4&data_name=";
 const char path_dvalue[] = "&data_value=";
-// Full URL after attaching all values either for Temperature or Air Quality
-char fullPath[200] = "";
+// Full URL after attaching all values either for uploading or retrieving.
+char fullPath[110] = "";
 
 // Max length of the reply content
 #define CONTENT_MAX_LENGTH 300
-char responseContent[CONTENT_MAX_LENGTH]="";
+char responseContent[CONTENT_MAX_LENGTH] = "";
 
 // Number of milliseconds to wait without receiving any data before we give up
-const int kNetworkTimeout = 30*1000;
+const int networkTimeout = 30*1000;
 // Number of milliseconds to wait if no data is available before trying again
-const int kNetworkDelay = 1000;
-// Every 30 seconds the device should send the captured values to the server.
-// Instead of using 'delay' function, we will be using delta time.
-unsigned long serverDeliveryRecordedTime;
-const int serverDeliveryTimeout = 10*1000;
+const int networkDelay = 1000;
 
-const int ledPin = 5;
-const int inputPin = 6;
-const int motorPin = 9;
+// PINs (LED + button + motor + Bluetooth HC-06 + potentiometer)
+const int ledPIN = 5;
+const int buttonPIN = 6;
+const int motorPIN = 9;
+const int potentiometerPIN = A0;
 
 // Wi-Fi and Http client:
 WiFiClient c;
 HttpClient http(c);
 
+// Variables related to BT module (HC-06):
+SoftwareSerial BT1(3,2); // RX of BT module -> PIN 02 of Arduino  || TX of BT module -> PIN 03 of Arduino
+//char lyric[500] = "TakeOnMe:d=4,o=4,b=160:8f#5"; // A certain amount of memory is reserved for toring the lyric obtained from BT module.
+char lyric[500]; // A certain amount of memory is reserved for toring the lyric obtained from BT module.
+
+int idx=0; // Indice para recorrer el array de chars
+char* lyricPointer; // Puntero a chars, variable final que necesitamos para luego reproducir la cancion.
+
+// Value read from EEPROM memory:
+int numTonesEEPROM;
+
+// Variables and directives related to Tone.h and RTTTL format (buzzer):
 Tone tone1;
-
 #define OCTAVE_OFFSET 0
-
 int notes[] = { 0,
 NOTE_C4, NOTE_CS4, NOTE_D4, NOTE_DS4, NOTE_E4, NOTE_F4, NOTE_FS4, NOTE_G4, NOTE_GS4, NOTE_A4, NOTE_AS4, NOTE_B4,
 NOTE_C5, NOTE_CS5, NOTE_D5, NOTE_DS5, NOTE_E5, NOTE_F5, NOTE_FS5, NOTE_G5, NOTE_GS5, NOTE_A5, NOTE_AS5, NOTE_B5,
@@ -56,57 +64,100 @@ NOTE_C6, NOTE_CS6, NOTE_D6, NOTE_DS6, NOTE_E6, NOTE_F6, NOTE_FS6, NOTE_G6, NOTE_
 NOTE_C7, NOTE_CS7, NOTE_D7, NOTE_DS7, NOTE_E7, NOTE_F7, NOTE_FS7, NOTE_G7, NOTE_GS7, NOTE_A7, NOTE_AS7, NOTE_B7
 };
 
-char* songName = "TakeOnMe";
-char *song = "TakeOnMe:d=4,o=4,b=160:8f#5,8f#5,8f#5,8d5,8p,8b,8p,8e5,8p,8e5,8p,8e5,8g#5,8g#5,8a5,8b5,8a5,8a5,8a5,8e5,8p,8d5,8p,8f#5,8p,8f#5,8p,8f#5,8e5,8e5,8f#5,8e5,8f#5,8f#5,8f#5,8d5,8p,8b,8p,8e5,8p,8e5,8p,8e5,8g#5,8g#5,8a5,8b5,8a5,8a5,8a5,8e5,8p,8d5,8p,8f#5,8p,8f#5,8p,8f#5,8e5,8e5";
 
+// TO DELETE:
+char* songName = "takeonme";
+int myCounter;
+
+// SETUP is executed just once
 void setup()
 {
-  // initialize serial communications at 9600 bps:
+  // Initialize serial communications at 9600 bps:
   Serial.begin(9600);
+  BT1.begin(9600); // for BT module
   
-  // check for the presence of the shield:
+  // Check for the presence of the shield:
   if (WiFi.status() == WL_NO_SHIELD) {
     Serial.println("[WARNING]: WiFi shield not present"); 
     // Don't continue. We stuck the program in an infinite loop:
     while(true);
   } 
 
-  tone1.begin(8);
-  pinMode(ledPin, OUTPUT);
-  pinMode(motorPin, OUTPUT);
+  // The four EEPROM values are read now and assigned to global variables.
+  numTonesEEPROM = EEPROM.read(0);
+  Serial.print("EEPROM.read(0) = ");Serial.println(numTonesEEPROM);
+  
+  tone1.begin(8); // The buzzer works through PIN 8, here is used!
+  // Set to OUTPUT the PINs for LEDs:
+  pinMode(ledPIN, OUTPUT);
+  pinMode(motorPIN, OUTPUT);
+  
+  lyricPointer = "";
 
   connectToWiFi();
   
-  // We start counting 30 seconds from now.
-  serverDeliveryRecordedTime = millis();
+  // TO DELETE!!!!!! :
+  myCounter = 0;
+  lyricPointer = &lyric[0];
+  
 }
 
 void loop()
 {
-  // When a certain amount of seconds have elapsed, we wend the values to the server:
-  if (millis() - serverDeliveryRecordedTime > serverDeliveryTimeout) {
-    digitalWrite(motorPin, HIGH);
-    play_rtttl(song);
-    digitalWrite(motorPin, LOW);
-    digitalWrite(ledPin, LOW);
-    sendValuesToServer(5,songName);
-    serverDeliveryRecordedTime = millis();
-  }
+  /*
+  digitalWrite(motorPIN, HIGH); // Run the motor!
+  play_rtttl(lyricPointer); // Play the song
+  digitalWrite(motorPIN, LOW); // Stop the motor!
+  digitalWrite(ledPIN, LOW); // Stop lighting!
+  delay(2000); */
+  while (BT1.available()) { 
+      char readChar = BT1.read();
+      lyric[idx]=readChar;
+      Serial.print(lyric[idx]); // El error estaba en que haciamos un println en vez de print, y es posible que eso no imprimiera visualmente todo, a pesar de que el ARRAY si que estuviera completo
+      idx++;
+    } 
+    if (!BT1.available()) {
+      if (lyric[0] != '\0') {
+        lyricPointer = &lyric[0]; Serial.print("Chars pointer: "); Serial.println(lyricPointer);
+        lyric[0] = '\0'; idx = 0;
+        
+        // Now play song??
+        
+        digitalWrite(motorPIN, HIGH); // Run the motor!
+        play_rtttl(lyricPointer); // Play the song
+        digitalWrite(motorPIN, LOW); // Stop the motor!
+        digitalWrite(ledPIN, LOW); // Stop lighting!  
+      }
+    }
+  //getSendValuesToServer(0,myCounter,songName);
+  //myCounter++;
   
 }
 
-void sendValuesToServer(int value, char* song) {
-  sprintf(fullPath,"%s%s%s",path,song,path_dvalue);
-  char str_value[255];
-  sprintf(str_value,"%d",value);
-  strcat(fullPath,str_value); // Concat strfloat at the end of text
+// Gets from or Sends to the backend the updated value of hoy many times the song has been played
+// The URL contains three query strings: 
+// · device_id = The ID of the device
+// · data_name = the name of the song from which we will update the number of times played
+// · data_value = the counter
+// 'Operation' parameter meaning:
+// 0 => this means that we are doing GET (retrieve value)
+// 1 => this means that we are doing "POST" (send value)
+/*
+void getSendValuesToServer(int operation, int counter, char* songname) {
+  float obtainedValue;
+  int err = 0;
   
+  if (operation == 0) {
+    sprintf(fullPath,"%s%s",pathGet,songname);
+  } else if (operation == 1) {
+    sprintf(fullPath,"%s%s%s%d",pathAdd,songname,path_dvalue,counter);
+  }
+   
   Serial.print("Requesting URL: ");
   Serial.print(fullPath);
   Serial.println("...");
-  
-  int err = 0;
-  err = http.get(kHostname, fullPath);
+   
+  err = http.get(hostname, fullPath);
   if (err == 0) {
     Serial.println("startedRequest ok");
 
@@ -114,7 +165,6 @@ void sendValuesToServer(int value, char* song) {
     if (err >= 0) {
       Serial.print("Got status code: ");
       Serial.print(err);
-      Serial.print(" | ");
 
       // Usually you'd check that the response code is 200 or a
       // similar "success" code (200-299) before carrying on,
@@ -132,14 +182,21 @@ void sendValuesToServer(int value, char* song) {
         char c;
         // Whilst we haven't timed out & haven't reached the end of the body
         while ( (http.connected() || http.available()) &&
-               ((millis() - timeoutStart) < kNetworkTimeout) )
+               ((millis() - timeoutStart) < networkTimeout) )
         {
             if (http.available())
             {
                 c = http.read();
-                // Print out this character
-                Serial.print(c);
-               
+                if (operation == 0) {
+                  // Add read char to the respone content
+                  int lastPos = strlen(responseContent);
+                  responseContent[lastPos] = c;
+                  responseContent[++lastPos] = '\0';              
+                } else if (operation == 1) {
+                  // Print out this character
+                  Serial.print(c);
+                }
+                
                 bodyLen--;
                 // We read something, reset the timeout counter
                 timeoutStart = millis();
@@ -147,8 +204,15 @@ void sendValuesToServer(int value, char* song) {
             else {
                 // We haven't got any data, so let's pause to allow some to
                 // arrive
-                delay(kNetworkDelay);
+                delay(networkDelay);
             }
+        }
+        if (operation == 0) {
+          // End of while, responseContent fully formed
+          Serial.println(responseContent);
+          Serial.print("responseContent: ");
+          //obtainedValue = getValueFromJson(responseContent);
+          //Serial.print("obtainedValue = "); Serial.println(obtainedValue);
         }
       }
       else {
@@ -168,13 +232,15 @@ void sendValuesToServer(int value, char* song) {
   }
   http.stop();
 }
+*/
 
+// Connects to WiFi when demanded. This program features a resilient WiFi connection.
+// After loosing signal, the device can search and re-connect to the network without rebooting.
 void connectToWiFi(){
   int status = WiFi.status();
   // attempt to connect to Wifi network:
   while ( WiFi.status() != WL_CONNECTED) { 
-    Serial.print("Attempting to connect to SSID: ");
-    Serial.println(ssid);
+    Serial.print("Attempting to connect to SSID: "); Serial.print(ssid); Serial.println("...");
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:    
     status = WiFi.begin(ssid, pass);
 
@@ -183,25 +249,51 @@ void connectToWiFi(){
   } 
   // you're connected now, so print out the status:
   printWifiStatus();
+  Serial.println("---------------------------------------------------");
+  Serial.println("---------------------------------------------------");
 }
 
+// Prints Wifi status
 void printWifiStatus() {
-  // print the SSID of the network you're attached to:
+  // Print the SSID of the network you're attached to:
   Serial.print("SSID: ");
-  Serial.println(WiFi.SSID());
+  Serial.print(WiFi.SSID());
 
-  // print your WiFi shield's IP address:
+  // Print your WiFi shield's IP address:
   IPAddress ip = WiFi.localIP();
-  Serial.print("IP Address: ");
-  Serial.println(ip);
+  Serial.print(" IP Address: ");
+  Serial.print(ip);
 
-  // print the received signal strength:
+  // Print the received signal strength:
   long rssi = WiFi.RSSI();
-  Serial.print("Signal strength (RSSI):");
+  Serial.print(" Signal strength (RSSI):");
   Serial.print(rssi);
   Serial.println(" dBm");
 }
 
+// Util function to parse JSON and extract desired information. In this case, just the counter.
+/*
+float getValueFromJson(char* json_string){
+  float value;
+  aJsonObject* root = aJson.parse(json_string);
+  aJsonObject* first = aJson.getArrayItem(root, 0);
+  aJsonObject* json_value = aJson.getObjectItem(first, "data_value");
+  
+  if(json_value->type == aJson_Int)
+    value = json_value->valueint;
+   else
+    value = json_value->valuefloat;
+
+  // Super-important. Once done, deleteto root element to free memory!!
+  aJson.deleteItem(root);
+  return value;
+}
+*/
+
+
+
+// -----------------------------------------
+// METHODS/FUNCTIONS RELATED TO PLAYING SONG:
 #define isdigit(n) (n >= '0' && n <= '9')
 
 void play_rtttl(char *p)
@@ -269,7 +361,6 @@ void play_rtttl(char *p)
   wholenote = (60 * 1000L / bpm) * 4;  // this is the time for whole note (in milliseconds)
 
   //Serial.print("wn: "); Serial.println(wholenote, 10);
-
 
   // now begin note loop
   while(*p)
@@ -346,29 +437,30 @@ void play_rtttl(char *p)
     if(*p == ',')
       p++;       // skip comma for next note (or we may be at the end)
 
-    int val = digitalRead(inputPin); // read input value
-    Serial.print("val: "); Serial.println(val);
-    if (val == LOW) { // check if the input is HIGH
+    // NOW, we check whether we have to stop from playing the song depending on whether the user has pushed the button or not.
+    int val = digitalRead(buttonPIN); // read input value
+    Serial.print("Button value: "); Serial.println(val);
+    if (val == LOW) { // check if the input is LOW
       break;
     }
     
-    // now play the note
+    // Now play the note
     if(note)
     {
-      Serial.print("eeprom: "); Serial.println(EEPROM.read(0));
+      //Serial.print("eeprom: "); Serial.println(EEPROM.read(0));
       /*Serial.print("Playing: ");
       Serial.print(scale, 10); Serial.print(' ');
       Serial.print(note, 10); Serial.print(" (");
       Serial.print(notes[(scale - 4) * 12 + note], 10);
       Serial.print(") ");
       Serial.println(duration, 10);*/
-      tone1.play(notes[(scale - 4) * 12 + note + EEPROM.read(0)/2 -(analogRead(0)/(1000/EEPROM.read(0)))]);
+      tone1.play(notes[(scale - 4) * 12 + note + numTonesEEPROM/2 -(analogRead(potentiometerPIN)/(1000/numTonesEEPROM))]); // Here is where we can change the TONE of the song based on the value of the potentiometer
       //Serial.print("thisNote: "); Serial.println(thisNote);
       if (thisNote%2==0){
-        digitalWrite(ledPin, HIGH);
+        digitalWrite(ledPIN, HIGH);
       }
       else if (thisNote%2==1){    
-        digitalWrite(ledPin, LOW);
+        digitalWrite(ledPIN, LOW);
       }
       thisNote++;
       delay(duration);
